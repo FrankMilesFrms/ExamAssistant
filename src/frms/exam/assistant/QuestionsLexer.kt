@@ -30,8 +30,11 @@ object QuestionsLexer
 	@JvmStatic
 	fun main(args: Array<String>)
 	{
-		rearrangeFile {
-			removeBlank(it, translatePinyin = ::translateFirstPinyin).run {
+		rearrangeFile("/answer.txt") { it ->
+			removeBlank(
+				it,
+				translatePinyin = {p-> p}//::translateFirstPinyin
+			).run {
 				println(this)
 				println("------------------")
 			}
@@ -40,7 +43,7 @@ object QuestionsLexer
 	}
 
 
-	private fun translateFirstPinyin(char: Char): Char
+	fun translateFirstPinyin(char: Char): Char
 	{
 		return PinyinUtil.getFirstLetter(char).lowercaseChar()
 	}
@@ -48,7 +51,7 @@ object QuestionsLexer
 	/**
 	 * 移除中文字符间的空白字符，并且剔除多余的换行
 	 */
-	private fun removeBlank(
+	fun removeBlank(
 		stringBuilder: StringBuilder,
 		translatePinyin: (Char) -> Char
 	) : StringBuilder
@@ -95,16 +98,13 @@ object QuestionsLexer
 
 	/**
 	 * 重新整理代码，整理规则：
-	 * 以"`"行作为代码分割
+	 * 以" ` "行作为代码分割
 	 */
-	private fun rearrangeFile(
-		string: String = "C:\\Users\\Frms\\Desktop\\数据库题库.txt",
-		question : (StringBuilder) -> Unit = {}
-	): List<String>
+	fun rearrangeFile(string: String, question : (StringBuilder) -> Unit = {}): List<String>
 	{
 		val array = arrayListOf<String>()
 		val stringBuilder = StringBuilder()
-		val lines = FileUtil.readLines(string, "GBK")
+		val lines = FileUtil.readLines(this.javaClass.getResource(string), Charsets.UTF_8)
 		for (line in lines)
 		{
 			if(line.contains("`").not()) {

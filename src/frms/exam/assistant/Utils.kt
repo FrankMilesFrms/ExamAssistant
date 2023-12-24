@@ -40,3 +40,4 @@ fun Char.isChineseCharactersOrSymbol(includeEnglishSymbol : Boolean = true) : Bo
 {
 	return isChineseCharacters() || isLetterOrDigit().not()
 }
+

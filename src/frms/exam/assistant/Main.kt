@@ -1,6 +1,7 @@
-package frms.covert.exam.assistant
+package frms.exam.assistant
 
 
+import frms.covert.exam.assistant.ScrollBarUI
 import java.awt.*
 import java.awt.event.*
 import javax.swing.*
@@ -13,7 +14,8 @@ import javax.swing.border.EmptyBorder
  *</p>
  * @author Frms(Frank Miles)
  */
-fun main() {
+fun main()
+{
 	// 创建 JFrame 实例
 	val frame = JFrame()
 
@@ -26,9 +28,7 @@ fun main() {
 
 	// 创建 搜索框
 	val searchBar = MyTextField {
-		println(it)
-		textLabel.text = ""
-		textLabel.text = it.repeat(2)
+		textLabel.text = AnswerSearch.searchString(it)
 	}
 	frame.add(searchBar, BorderLayout.SOUTH)
 
@@ -130,7 +130,8 @@ fun JFrame.setMovable(jComponent: JComponent, onClick : () -> Unit)
 			isDragging = false
 		}
 
-		override fun mouseClicked(e: MouseEvent?)
+		override fun
+				mouseClicked(e: MouseEvent?)
 		{
 			e?.let {
 				if(e.button == 3) {

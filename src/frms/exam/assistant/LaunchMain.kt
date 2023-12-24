@@ -17,35 +17,17 @@
 package frms.exam.assistant
 
 /**
- * 检索分析
- * 一段连续的英文是要求题目存在此句
- * 不连续词句的需要顺序一致。
+ *
  * * Email : FrankMiles@qq.com
- * * Date  : 2023/12/23, 下午 03:05
+ * * Date  : 2023/12/24, 下午 07:57
  * @author Frms(Frank Miles)
  */
-object SearchLexer
+ 
+object LaunchMain
 {
 	@JvmStatic
 	fun main(args: Array<String>)
 	{
 
-	}
-
-	fun lexerStatement(command : String) : List<String>
-	{
-		val res = arrayListOf<String>()
-		val tempString = StringBuilder()
-
-		for((index, review) in command.withIndex())
-		{
-			if(review.isLetterOrDigit()) {
-				tempString.append(review)
-			} else if(tempString.isNotEmpty())
-			{
-
-			}
-		}
-		return res
 	}
 }
