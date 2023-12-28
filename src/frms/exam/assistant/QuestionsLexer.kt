@@ -27,21 +27,6 @@ import cn.hutool.extra.pinyin.PinyinUtil
  */
 object QuestionsLexer
 {
-	@JvmStatic
-	fun main(args: Array<String>)
-	{
-		rearrangeFile("/answer.txt") { it ->
-			removeBlank(
-				it,
-				translatePinyin = {p-> p}//::translateFirstPinyin
-			).run {
-				println(this)
-				println("------------------")
-			}
-		}
-
-	}
-
 
 	fun translateFirstPinyin(char: Char): Char
 	{

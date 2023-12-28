@@ -16,6 +16,7 @@
 
 package frms.exam.assistant
 
+import cn.hutool.http.HttpRequest.options
 import frms.covert.exam.assistant.QuestionsLexer
 import frms.covert.exam.assistant.isChineseCharacters
 
@@ -25,7 +26,7 @@ import frms.covert.exam.assistant.isChineseCharacters
  * * Date  : 2023/12/24, 下午 02:42
  * @author Frms(Frank Miles)
  */
-object AnswerSearch
+class AnswerSearch(questionBank: String)
 {
 	/**
 	 * 回答，<拼音,正文>
@@ -34,7 +35,18 @@ object AnswerSearch
 
 	init
 	{
-		QuestionsLexer.rearrangeFile("/answer.txt")
+
+		QuestionsLexer.rearrangeFile(
+			when(questionBank)
+			{
+				"jw" -> {
+					"/jw.txt"
+				}
+				else -> {
+					"/answer.txt"
+				}
+			}
+		)
 		{ text ->
 			QuestionsLexer.removeBlank(
 				text,
@@ -49,16 +61,28 @@ object AnswerSearch
 	 * 检索答案
 	 *
 	 * @param command
+	 * @param optionList <操作数据,答案,是操作数据？> 当用户数据操作数据时，就会改调用。
 	 * @return
 	 */
-	fun searchList(command: String): List<String>
-	{
+	fun searchList(
+		command: String,
+		optionList: (List<String>, List<String>, Boolean) -> Unit = {a,b, c -> }
+	) {
 		val result = arrayListOf<String>()
 		val words = command.lexerStatement()
 
 		if(words.isEmpty()) {
-			return result
+			optionList(
+				words, result, false
+			)
+			return
 		}
+
+		if(words[0] == "frms") {
+			optionList(words, result, true)
+			return
+		}
+
 		questions.forEach {
 			if(matchWords(words, it.first)) {
 				result.add(it.second)
@@ -69,18 +93,27 @@ object AnswerSearch
 				}
 			}
 		}
-		return result
+
+		optionList(words, result, false)
 	}
 
-	fun searchString(command: String): String
-	{
+	fun searchString(
+		command: String,
+		optionList: (List<String>, String, Boolean) -> Unit = {a,b, c ->}
+	) {
 		val stringBuilder = StringBuilder()
-		searchList(command).forEach {
-			stringBuilder.append(it)
-			stringBuilder.append("\n-----\n")
+		searchList(command) { options, result, isConfig ->
+			if(isConfig) {
+				optionList(options, "", true)
+			} else {
+				result.forEach {
+					stringBuilder.append("---").append(it).append('\n')
+				}
+				stringBuilder.append("-")
+				optionList(options, stringBuilder.toString(), false)
+			}
 		}
-		stringBuilder.append("-")
-		return stringBuilder.toString()
+
 	}
 
 	private fun String.hasChinese(): Boolean

@@ -31,7 +31,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI
  */
 class ScrollBarUI : BasicScrollBarUI()
 {
-	val TRANSPARENT = Color(0,0,0,0)
+	val TRANSPARENT = Color(0,0,0,1)
 	init {
 		trackColor = TRANSPARENT
 		thumbDarkShadowColor = TRANSPARENT
@@ -50,7 +50,7 @@ class ScrollBarUI : BasicScrollBarUI()
 	override fun getPreferredSize(c: JComponent?): Dimension
 	{
 		c?.let {
-			c.preferredSize = Dimension(5, 0)
+			c.preferredSize = Dimension(5, 1)
 		}
 		return super.getPreferredSize(c)
 	}
@@ -74,12 +74,6 @@ class ScrollBarUI : BasicScrollBarUI()
 			graphics2D.fillRect(x, y, width, height)
 		}
 
-		//绘制Track的边框
-		/*       g2.setColor(new Color(175, 155, 95));
-		 g2.drawRect(trackBounds.x, trackBounds.y, trackBounds.width - 1,
-				trackBounds.height - 1);
-				*/
-
 		if (trackHighlight == DECREASE_HIGHLIGHT)
 			this.paintDecreaseHighlight(g)
 
@@ -96,12 +90,14 @@ class ScrollBarUI : BasicScrollBarUI()
 
 	override fun createIncreaseButton(orientation: Int): JButton = JButton().apply {
 		border= EmptyBorder(0,0,0,0)
+		isContentAreaFilled = false
 		text = "<"
 		background = TRANSPARENT
 	}
 
 	override fun createDecreaseButton(orientation: Int): JButton = JButton().apply {
 		border= EmptyBorder(0,0,0,0)
+		isContentAreaFilled = false
 		text = ">"
 		background = TRANSPARENT
 	}

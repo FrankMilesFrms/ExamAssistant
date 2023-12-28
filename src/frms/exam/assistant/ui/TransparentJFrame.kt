@@ -14,20 +14,31 @@
  * limitations under the License.
  */
 
-package frms.exam.assistant
+package frms.exam.assistant.ui
+
+import frms.exam.assistant.MainScreen
+import java.awt.Color
+import java.awt.Frame
+import java.awt.Window
+import javax.swing.JFrame
 
 /**
- *
+ * 透明JFrame
  * * Email : FrankMiles@qq.com
- * * Date  : 2023/12/24, 下午 07:57
+ * * Date  : 2023/12/24, 下午 10:18
  * @author Frms(Frank Miles)
  */
- 
-object LaunchMain
+class TransparentJFrame : JFrame()
 {
-	@JvmStatic
-	fun main(args: Array<String>)
+	init
 	{
-
+		defaultCloseOperation = EXIT_ON_CLOSE
+		// 隐藏标题
+		isUndecorated = true;
+		type = Type.UTILITY
+		isAlwaysOnTop = true
+		background = Color(0, 0,0,1)
+		isResizable = true
 	}
+
 }

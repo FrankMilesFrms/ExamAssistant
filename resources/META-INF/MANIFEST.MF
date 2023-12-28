@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: frms.covert.exam.assistant.MainKt
+Main-Class: frms.exam.assistant.MainScreen
 
