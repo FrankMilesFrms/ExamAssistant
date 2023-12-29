@@ -26,7 +26,7 @@ import frms.covert.exam.assistant.isChineseCharacters
  * * Date  : 2023/12/24, 下午 02:42
  * @author Frms(Frank Miles)
  */
-class AnswerSearch(questionBank: String)
+class AnswerSearch(questionBank: String = "/answer.txt")
 {
 	/**
 	 * 回答，<拼音,正文>
@@ -36,17 +36,7 @@ class AnswerSearch(questionBank: String)
 	init
 	{
 
-		QuestionsLexer.rearrangeFile(
-			when(questionBank)
-			{
-				"jw" -> {
-					"/jw.txt"
-				}
-				else -> {
-					"/answer.txt"
-				}
-			}
-		)
+		QuestionsLexer.rearrangeFile(questionBank)
 		{ text ->
 			QuestionsLexer.removeBlank(
 				text,
@@ -64,7 +54,7 @@ class AnswerSearch(questionBank: String)
 	 * @param optionList <操作数据,答案,是操作数据？> 当用户数据操作数据时，就会改调用。
 	 * @return
 	 */
-	fun searchList(
+	private fun searchList(
 		command: String,
 		optionList: (List<String>, List<String>, Boolean) -> Unit = {a,b, c -> }
 	) {

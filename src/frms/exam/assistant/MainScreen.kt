@@ -39,29 +39,53 @@ object MainScreen
 {
 	private val mainJFrame = TransparentJFrame()
 	private var mainConfig = MainScreenData()
+
 	// 主按钮
-	private val mainButton = JButton(" O ")
+	private val mainButton = JButton(" O ").apply {
+		setButtonTransparent()
+	}
+
 	// 控制按钮
-	private val configButton = JButton(" · ")
+	private val subButton = JButton(" · ").apply {
+		setButtonTransparent()
+	}
+
 	// 答案文本框
-	private val answerTextArea = ResultTextArea()
+	private val answerTextArea = JTextArea().apply {
+		lineWrap = true
+		setTransparent()
+	}
+
 	// 搜索文本框
 	private lateinit var searchJTextField: JTextField
+
 	// 答案滑动条
-	private val scrollPane = JScrollPane()
+	private val scrollPane = JScrollPane().apply {
+		setViewportView(answerTextArea)
+		setTransparent()
+		border = EmptyBorder(0, 0, 0, 0)
+		verticalScrollBar = JScrollBar().apply {
+			setUI(ScrollBarUI())
+		}
+	}
+
 	private var buttonBorderShow = false
+
 	@JvmStatic
 	fun main(args: Array<String>)
 	{
-		show(args)
-		updateScreenData(mainConfig)
-		// 显示 JFrame
+		show()
+		// 更新屏幕
+		updateScreenData(mainConfig)		// 显示 JFrame
+
 		mainJFrame.pack()
-		mainJFrame.isVisible = true
-		// 显示后就请求焦点
+		mainJFrame.isVisible = true		// 显示后就请求焦点
+
+		// 更改焦点
 		answerTextArea.isFocusable = false
 		searchJTextField.requestFocus()
 
+		// 隐蔽性提示
 		System.err.apply {
 			println(this.javaClass)
 			Thread.currentThread().stackTrace.forEach {
@@ -69,93 +93,84 @@ object MainScreen
 			}
 		}
 	}
+
 	/**
 	 * 显示界面
 	 *
 	 */
-	fun show(args: Array<String>)
+	private fun show()
 	{
 		// 背景边框是否显示
 		var showBorder = false
-		mainJFrame.layout = BorderLayout()
 
-		val headPanel = JPanel()
+		mainJFrame.add(JPanel().apply {
 
-		val flowLayout = FlowLayout()
-		flowLayout.alignment = FlowLayout.LEFT
+			layout = BorderLayout()
+			setTransparent()
+			layout = FlowLayout().apply {
+				alignment = FlowLayout.LEFT
+			}
 
-		mainButton.setButtonTransparent()
+			add(mainButton)
+			add(subButton)
+		}, BorderLayout.NORTH)
 
-		configButton.setButtonTransparent()
-		configButton.addMouseListener(object : MouseAdapter() {
+
+		subButton.addMouseListener(object : MouseAdapter()
+		{
 			override fun mouseClicked(e: MouseEvent?)
 			{
-				if(e?.button == BUTTON3)
+				if (e?.button == BUTTON3)
 				{
 					buttonBorderShow = buttonBorderShow.not()
 					mainButton.setButtonTransparent(buttonBorderShow)
-					configButton.setButtonTransparent(buttonBorderShow)
-
+					subButton.setButtonTransparent(buttonBorderShow)
 				}
 			}
 		})
-		configButton.addActionListener {
+
+		subButton.addActionListener {
 			showBorder = showBorder.not()
-			if(showBorder) {
+			if (showBorder)
+			{
 				answerTextArea.border = LineBorder(answerTextArea.foreground, 1)
-			} else {
-				answerTextArea.border = EmptyBorder(0,0,0,0)
+			} else
+			{
+				answerTextArea.border = EmptyBorder(0, 0, 0, 0)
 			}
 		}
 
 
-		headPanel.setTransparent()
-		headPanel.layout = flowLayout
-		headPanel.add(mainButton)
-		headPanel.add(configButton)
-
-
 		// 题目搜索框
 		val searchBar = MyTextField {
-			AnswerSearch(
-				if(args.isEmpty()) "" else args[0]
-			). searchString(it) { options, result, isConfig ->
-				if(isConfig) {
-					updateScreenData(
-						createMainScreenData(options, mainConfig).apply {
-							answerTextArea.text = toString()
-						}
-					)
-				} else {
+			AnswerSearch().searchString(it)
+			{ options, result, isConfig ->
+				if (isConfig)
+				{
+					updateScreenData(createMainScreenData(options, mainConfig).apply {
+						answerTextArea.text = toString()
+					})
+				} else
+				{
 					answerTextArea.text = result
 				}
 			}
 		}
 
 		searchJTextField = searchBar
+
 		mainJFrame.add(searchBar, BorderLayout.SOUTH)
 
 		// 设置可以滑动
-		mainJFrame.setMovable(
-			jComponent = mainButton,
-			rightClick = {
-				// 移动组件，隐藏
-				changeAnswerViewStatus()
-			}
-		) {
+		mainJFrame.setMovable(jComponent = mainButton, rightClick = {				// 移动组件，隐藏
+			changeAnswerViewStatus()
+		}) {
 			searchBar.isVisible = searchBar.isVisible.not()
 			searchBar.text = "----"
 			answerTextArea.isFocusable = false
 			searchBar.requestFocus()
 		}
-		mainJFrame.add(headPanel, BorderLayout.NORTH)
 
-		scrollPane.setViewportView(answerTextArea)
-		scrollPane.setTransparent()
-		scrollPane.border = EmptyBorder(0,0,0,0)
-		scrollPane.verticalScrollBar = JScrollBar().apply {
-			setUI(ScrollBarUI())
-		}
 
 		mainJFrame.add(scrollPane, BorderLayout.CENTER)
 
@@ -170,16 +185,14 @@ object MainScreen
 		}.start()
 
 
+		/*
+		 *确保鼠标在控件上时，显示控件，当鼠标移出时，取消之。
+		 */
 		arrayOf(
-			mainJFrame.rootPane,
-			mainButton, configButton,
-			answerTextArea, scrollPane, searchJTextField
-		).forEach { it ->
-			it.mouseInsideListening {status ->
-				changeAnswerViewStatus(
-					autoChange = false,
-					controlShow = status
-				)
+			mainJFrame.rootPane, mainButton, subButton, answerTextArea, scrollPane, searchJTextField
+		).forEach {
+			it.mouseInsideListening { status ->
+				changeAnswerViewStatus(autoChange = false, controlShow = status)
 			}
 		}
 	}
@@ -192,15 +205,16 @@ object MainScreen
 	private fun changeAnswerViewStatus(
 		autoChange: Boolean = true,
 		controlShow: Boolean = false
-	) {
-		if(autoChange)
+	)
+	{
+		if (autoChange)
 		{
 			scrollPane.isVisible = scrollPane.isVisible.not().apply {
 				if (not())
 				{
-					searchJTextField.isVisible = false
-					// 防止匹配字符太多而无法输入
-					if (answerTextArea.text.length > 300) {
+					searchJTextField.isVisible = false					// 防止匹配字符太多而无法输入
+					if (answerTextArea.text.length > 300)
+					{
 						answerTextArea.text = ""
 					}
 				} else
@@ -212,7 +226,8 @@ object MainScreen
 		{
 			scrollPane.isVisible = controlShow
 			searchJTextField.isVisible = controlShow
-			if(controlShow) {
+			if (controlShow)
+			{
 				searchJTextField.requestFocus()
 			}
 		}
@@ -220,28 +235,28 @@ object MainScreen
 	}
 
 
-	private fun JComponent.mouseInsideListening(inside: (Boolean)->Unit)
+	private fun JComponent.mouseInsideListening(inside: (Boolean) -> Unit)
 	{
-		addMouseListener(object : MouseAdapter() {
-			override fun mouseEntered(e: MouseEvent?) = inside(true)
+		addMouseListener(object : MouseAdapter()
+		                 {
+			                 override fun mouseEntered(e: MouseEvent?) =
+				                 inside(true)
 
-			override fun mouseExited(e: MouseEvent?) = inside(false)
-		})
+			                 override fun mouseExited(e: MouseEvent?) =
+				                 inside(false)
+		                 })
 	}
+
 	/**
 	 * config Screen
 	 *
 	 */
 	private fun updateScreenData(mainScreenData: MainScreenData = MainScreenData())
 	{
-		//mainJFrame.isVisible = false
-//		answerTextArea.setSize
 		mainJFrame.minimumSize = Dimension(mainScreenData.width, mainScreenData.height)
-		mainJFrame.size = Dimension(mainScreenData.width, mainScreenData.height)
-//		answerTextArea.repaint()
-//		mainJFrame.pack()
+		mainJFrame.size = Dimension(mainScreenData.width, mainScreenData.height) //		answerTextArea.repaint()
+
 		mainJFrame.repaint()
-//		mainJFrame.isVisible = true
 
 		answerTextArea.foreground = mainScreenData.fontColor.getColor()
 
@@ -256,41 +271,35 @@ object MainScreen
 		}
 
 		mainButton.text = " " + mainScreenData.mainSymbol + " "
-		configButton.text = " " + mainScreenData.configSymbol + " "
+		subButton.text = " " + mainScreenData.configSymbol + " "
 
 		mainButton.foreground = mainScreenData.mainColor.getColor()
-		configButton.foreground = mainScreenData.configColor.getColor()
-
+		subButton.foreground = mainScreenData.configColor.getColor()
 
 	}
 
 	private fun JButton.setButtonTransparent(
-		includeBorder : Boolean = false
+		includeBorder: Boolean = false
 	)
 	{
-		margin = Insets(0,0,0,0)
+		margin = Insets(0, 0, 0, 0)
 		isContentAreaFilled = false
-		if(includeBorder) {
+		if (includeBorder)
+		{
 			border = LineBorder(Color.GRAY, 1)
-		} else {
-			border = EmptyBorder(0,0,0,0)
+		} else
+		{
+			border = EmptyBorder(0, 0, 0, 0)
 		}
 	}
 
-	private fun JLabel.setOnAction(click: () -> Unit)
-	{
-		addMouseListener(object : MouseAdapter() {
-			override fun mouseClicked(e: MouseEvent) = click()
-		})
-	}
-
+	/**
+	 * Set a JComponent of transparent
+	 * 并非真透明。因为真透明控件会忽略控件。
+	 */
 	private fun JComponent.setTransparent()
 	{
-		background = Color(0, 0,0,1)
+		background = Color(0, 0, 0, 1)
 	}
 
-	private fun Window.setTransparent()
-	{
-		background = Color(0, 0,0,1)
-	}
 }
