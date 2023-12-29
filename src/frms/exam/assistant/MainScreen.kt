@@ -212,7 +212,8 @@ object MainScreen
 			scrollPane.isVisible = scrollPane.isVisible.not().apply {
 				if (not())
 				{
-					searchJTextField.isVisible = false					// 防止匹配字符太多而无法输入
+					searchJTextField.isVisible = false
+					// 防止匹配字符太多而无法输入
 					if (answerTextArea.text.length > 300)
 					{
 						answerTextArea.text = ""
